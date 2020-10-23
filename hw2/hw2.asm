@@ -1,3 +1,8 @@
+;Домашняя работа по АВС, Гундарев Пётр, БПИ191
+;Ввести с консоли вектор и переписать в обратном порядке
+
+
+
 format PE console
 
 entry start
@@ -11,14 +16,20 @@ section '.data' data readable writeable
         arrayout db 'Straight output is :', 10, 13, 0
         arrayrev db 'Reverse output is :', 10, 13, 0
         enterelem db '[%d]?', 0
+        strper db '', 10, 0
 
         spaceStr db '%d ', 0
         param db '%d', 0
 
         vec_size dd 0
         i dd ?
+        firstrev rd 100
+        lastrev dd ?
         first rd 100
         last dd ?
+        firstout dd ?
+        lastout dd ?
+
 
 section '.code' code readable executable
 
@@ -36,9 +47,33 @@ start:
         cmp eax, 0
         jle wrongFinish
 
+        ;Считывание вектора и переписывание в перевернутый
         call enterVector
-        call outVec
         call revVec
+
+        ;Вывод вектора
+        push arrayout
+        call [printf]
+        add esp, 4
+        mov ebx, first
+        mov ecx, [last]
+        mov [lastout], ecx
+        call outVec
+
+        ;Перевод строки
+        push strper
+        call [printf]
+        add esp, 4
+
+        ;Вывод развернутого вектора
+        push arrayrev
+        call [printf]
+        add esp, 4
+        mov ebx, firstrev
+        mov ecx, [lastrev]
+        mov [lastout], ecx
+        call outVec
+
         call finish
 
 wrongFinish:
@@ -79,13 +114,10 @@ endInput:
         ret
 
 outVec:
-        mov ebx, first
+        ;mov ebx, [firstout]
 
-        push arrayout
-        call [printf]
-        add esp, 4
 outElem:
-        cmp ebx, [last]
+        cmp ebx, [lastout]
         je endOut
 
         push dword [ebx]
@@ -96,27 +128,26 @@ outElem:
         add ebx, 4
         jmp outElem
 endOut:
+        xor ecx, ecx
         xor ebx, ebx
         ret
 
 revVec:
         mov ebx, [last]
-
-        push arrayrev
-        call [printf]
-        add esp, 4
+        mov ecx, firstrev
 revElem:
 
         cmp ebx, first
         je endRev
 
         sub ebx, 4
-        push dword [ebx]
-        push spaceStr
-        call [printf]
-        add esp, 8
+        mov eax, dword [ebx]
+        mov [ecx], eax
+        add ecx, 4
         jmp revElem
 endRev:
+        mov [lastrev], ecx
+        xor ecx, ecx
         xor ebx, ebx
         ret
 
