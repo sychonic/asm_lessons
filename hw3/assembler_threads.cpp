@@ -38,7 +38,7 @@ void func(int i, int j){
         int det = a[k].x*d2 - a[k].y*d3 + a[k].z*d1;
         if (det == 0){
             m.lock();
-            ans.push_back(trio(i, j, k));
+            ans.push_back(trio(i + 1, j + 1, k + 1));
             m.unlock();
         }
     }
@@ -51,7 +51,9 @@ void init(){
 
 int main() {
     unsigned int thread_num = thread::hardware_concurrency()/2;
+    cout << "Enter number of 3dim vectors\n";
     cin >> n;
+    cout << "Enter vectors one in each line\n";
     vector <thread> tr(thread_num);
     for (int k = 0; k < thread_num; ++k)
         tr[k] = thread(init);
@@ -81,6 +83,7 @@ int main() {
         if (tr[k].joinable())
             tr[k].join();
     }
+    cout << "Here are all the trios of complanar vectors:\n";
     for (int i = 0; i < ans.size(); ++i){
         ans[i].print();
     }
